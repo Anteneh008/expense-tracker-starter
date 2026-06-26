@@ -16,14 +16,21 @@ No test framework is configured.
 
 ## Architecture
 
-This is a React 19 + Vite app with a single component (`src/App.jsx`) that owns all state and rendering — no routing, no external state management, no persistence.
+React 19 + Vite app. No routing, no external state management, no persistence.
 
-**State in `App`:**
-- `transactions` — array of `{ id, description, amount, type, category, date }`
-- `description`, `amount`, `type`, `category` — controlled form fields for adding a transaction
-- `filterType`, `filterCategory` — filter state for the transaction list
+**Component tree:**
 
-**Known intentional issues (part of the course):**
-- `amount` is stored as a string. The `reduce` calls for `totalIncome` and `totalExpenses` use string concatenation instead of numeric addition, producing wrong totals.
+```
+App
+├── Summary          — computes and displays totalIncome, totalExpenses, balance from transactions
+├── TransactionForm  — owns its own form state; calls onAdd(transaction) prop on submit
+└── TransactionList  — owns its own filter state; receives transactions as a prop
+```
+
+**State ownership:**
+- `App` holds the `transactions` array (`{ id, description, amount, type, category, date }`) and passes it down. `amount` is always stored as a number.
+- `TransactionForm` owns `description`, `amount`, `type`, `category` locally and resets them after submit.
+- `TransactionList` owns `filterType` and `filterCategory` locally.
+
+**Known intentional issue (part of the course):**
 - "Freelance Work" (id 4) is typed as `"expense"` but categorized as `"salary"` — a data bug.
-- The UI is unstyled and the component is monolithic (no decomposition into smaller components).
