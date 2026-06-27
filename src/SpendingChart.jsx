@@ -1,16 +1,27 @@
+import { useMemo } from 'react';
 import { BarChart, Bar, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 const COLORS = ['#6366F1', '#8B5CF6', '#EC4899', '#F59E0B', '#10B981', '#3B82F6'];
 
 function SpendingChart({ transactions }) {
-  const categoryMap = {};
-  for (const t of transactions.filter(t => t.type === 'expense')) {
-    categoryMap[t.category] = (categoryMap[t.category] || 0) + t.amount;
+  const data = useMemo(() => {
+    const categoryMap = {};
+    for (const t of transactions.filter(t => t.type === 'expense')) {
+      categoryMap[t.category] = (categoryMap[t.category] || 0) + t.amount;
+    }
+    return Object.entries(categoryMap).map(([name, value]) => ({ name, value }));
+  }, [transactions]);
+
+  if (data.length === 0) {
+    return (
+      <div className="spending-chart">
+        <h2 className="section-title">Spending by Category</h2>
+        <p style={{ textAlign: 'center', color: 'var(--muted)', padding: '48px 0', fontSize: '14px' }}>
+          No expenses to chart yet.
+        </p>
+      </div>
+    );
   }
-
-  const data = Object.entries(categoryMap).map(([name, value]) => ({ name, value }));
-
-  if (data.length === 0) return null;
 
   return (
     <div className="spending-chart">
@@ -31,7 +42,7 @@ function SpendingChart({ transactions }) {
             width={48}
           />
           <Tooltip
-            formatter={(value) => [`$${value.toLocaleString()}`, 'Amount']}
+            formatter={(value) => [`$${value.toLocaleString('en-US')}`, 'Amount']}
             contentStyle={{
               borderRadius: '8px',
               border: '1px solid #E5E7EB',
@@ -42,8 +53,8 @@ function SpendingChart({ transactions }) {
             cursor={{ fill: 'rgba(0,0,0,0.03)' }}
           />
           <Bar dataKey="value" radius={[5, 5, 0, 0]}>
-            {data.map((_, index) => (
-              <Cell key={index} fill={COLORS[index % COLORS.length]} />
+            {data.map((entry, index) => (
+              <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />
             ))}
           </Bar>
         </BarChart>

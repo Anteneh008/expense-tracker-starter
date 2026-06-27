@@ -1,18 +1,16 @@
-import { useState } from 'react'
-
-const categories = ["food", "housing", "utilities", "transport", "entertainment", "salary", "other"];
+import { useState, useMemo } from 'react'
+import { CATEGORIES } from './constants'
 
 function TransactionList({ transactions, onDelete }) {
   const [filterType, setFilterType] = useState("all");
   const [filterCategory, setFilterCategory] = useState("all");
 
-  let filtered = transactions;
-  if (filterType !== "all") {
-    filtered = filtered.filter(t => t.type === filterType);
-  }
-  if (filterCategory !== "all") {
-    filtered = filtered.filter(t => t.category === filterCategory);
-  }
+  const filtered = useMemo(() => {
+    let result = transactions;
+    if (filterType !== "all") result = result.filter(t => t.type === filterType);
+    if (filterCategory !== "all") result = result.filter(t => t.category === filterCategory);
+    return result;
+  }, [transactions, filterType, filterCategory]);
 
   return (
     <div className="transactions">
@@ -26,7 +24,7 @@ function TransactionList({ transactions, onDelete }) {
           </select>
           <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)}>
             <option value="all">All Categories</option>
-            {categories.map(cat => (
+            {CATEGORIES.map(cat => (
               <option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
             ))}
           </select>
@@ -44,13 +42,19 @@ function TransactionList({ transactions, onDelete }) {
           </tr>
         </thead>
         <tbody>
-          {filtered.map(t => (
+          {filtered.length === 0 ? (
+            <tr>
+              <td colSpan={5} style={{ textAlign: 'center', color: 'var(--muted)', padding: '32px' }}>
+                No transactions found.
+              </td>
+            </tr>
+          ) : filtered.map(t => (
             <tr key={t.id}>
               <td className="td-date">{t.date}</td>
               <td>{t.description}</td>
               <td><span className="category-pill">{t.category}</span></td>
               <td className={`td-amount ${t.type === "income" ? "income-amount" : "expense-amount"}`}>
-                {t.type === "income" ? "+" : "-"}${t.amount.toLocaleString()}
+                {t.type === "income" ? "+" : "-"}${t.amount.toLocaleString('en-US')}
               </td>
               <td>
                 <button

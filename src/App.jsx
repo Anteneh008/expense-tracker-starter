@@ -18,11 +18,11 @@ function App() {
   ]);
 
   const handleAdd = (transaction) => {
-    setTransactions([...transactions, transaction]);
+    setTransactions(prev => [transaction, ...prev]);
   };
 
   const handleDelete = (id) => {
-    setTransactions(transactions.filter(t => t.id !== id));
+    setTransactions(prev => prev.filter(t => t.id !== id));
   };
 
   return (

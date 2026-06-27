@@ -1,0 +1,1 @@
+- [Project Patterns](project-patterns.md) — conventions, anti-patterns, and duplication found in the first full review (2026-06-27)

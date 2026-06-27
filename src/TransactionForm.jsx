@@ -1,6 +1,5 @@
 import { useState } from 'react'
-
-const categories = ["food", "housing", "utilities", "transport", "entertainment", "salary", "other"];
+import { CATEGORIES } from './constants'
 
 function TransactionForm({ onAdd }) {
   const [description, setDescription] = useState("");
@@ -10,12 +9,13 @@ function TransactionForm({ onAdd }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!description || !amount) return;
+    const parsedAmount = parseFloat(amount);
+    if (!description || isNaN(parsedAmount) || parsedAmount <= 0) return;
 
     onAdd({
-      id: Date.now(),
+      id: crypto.randomUUID(),
       description,
-      amount: parseFloat(amount),
+      amount: parsedAmount,
       type,
       category,
       date: new Date().toISOString().split('T')[0],
@@ -37,6 +37,7 @@ function TransactionForm({ onAdd }) {
             id="description"
             type="text"
             placeholder="e.g. Coffee"
+            maxLength={80}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
@@ -63,7 +64,7 @@ function TransactionForm({ onAdd }) {
         <div className="form-field field-category">
           <label htmlFor="category">Category</label>
           <select id="category" value={category} onChange={(e) => setCategory(e.target.value)}>
-            {categories.map(cat => (
+            {CATEGORIES.map(cat => (
               <option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
             ))}
           </select>
